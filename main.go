@@ -23,50 +23,50 @@ func main() {
 	requests := flag.Int("requests", 100, "requests")         // Número total de requisições
 	concurrency := flag.Int("concurrency", 10, "concurrency") // Número máximo de requisições simultâneas
 	flag.Parse()                                              // Analisa os argumentos fornecidos
-	
+
 	// Validação dos argumentos fornecidos
 	if *url == "" {
 		fmt.Println("url is required")
 		os.Exit(1) // Encerra o programa com código de erro
 	}
-	
+
 	if *requests <= 0 {
 		fmt.Println("requests must be greater than 0")
 		os.Exit(1)
 	}
-	
+
 	if *concurrency <= 0 {
 		fmt.Println("concurrency must be greater than 0")
 		os.Exit(1)
 	}
-	
+
 	// Ajusta a concorrência se for maior que o número de requisições
 	if *requests < *concurrency {
 		fmt.Println("requests must be greater than concurrency")
 		*concurrency = *requests
 	}
-	
+
 	// Marca o tempo de início do teste
 	startTime := time.Now()
-	
+
 	// Configuração das estruturas de sincronização e comunicação
 	var wg sync.WaitGroup                    // Grupo de espera para aguardar todas as goroutines finalizarem
 	resultsChan := make(chan int, *requests) // Canal para comunicar os códigos de status das requisições
 	statusCounts := make(map[int]int)        // Mapa para contar ocorrências de cada código de status
 	var successfulRequests int               // Contador de requisições bem-sucedidas (status 200)
 	var mu sync.Mutex                        // Mutex para acesso seguro aos contadores compartilhados
-	
+
 	// Semáforo para limitar o número de goroutines concorrentes
 	semaphore := make(chan struct{}, *concurrency)
-	
+
 	// Inicia as goroutines para fazer as requisições HTTP
 	for i := 0; i < *requests; i++ {
 		wg.Add(1)               // Incrementa o contador do WaitGroup
 		semaphore <- struct{}{} // Adquire um slot no semáforo
 		go func(reqNum int) {
-			defer wg.Done()              // Decrementa o contador do WaitGroup ao finalizar
-			defer func() { <-semaphore } // Libera um slot no semáforo ao finalizar
-			
+			defer wg.Done()                // Decrementa o contador do WaitGroup ao finalizar
+			defer func() { <-semaphore }() // Libera um slot no semáforo ao finalizar
+
 			// Realiza a requisição HTTP
 			resp, err := http.Get(*url)
 			if err != nil {
@@ -77,10 +77,10 @@ func main() {
 			resultsChan <- resp.StatusCode // Envia o código de status para o canal
 		}(i)
 	}
-	
+
 	wg.Wait()          // Aguarda todas as goroutines finalizarem
 	close(resultsChan) // Fecha o canal de resultados após todas as goroutines finalizarem
-	
+
 	// Processa os resultados recebidos pelo canal
 	for statusCode := range resultsChan {
 		mu.Lock() // Adquire o mutex para acesso seguro aos contadores
@@ -90,10 +90,10 @@ func main() {
 		statusCounts[statusCode]++ // Incrementa a contagem para este código de status
 		mu.Unlock()                // Libera o mutex
 	}
-	
+
 	// Calcula o tempo total gasto
 	totalTime := time.Since(startTime)
-	
+
 	// Prepara os dados do relatório
 	report := ReportData{
 		TotalTime:          totalTime,
@@ -101,7 +101,7 @@ func main() {
 		SuccessfulRequests: successfulRequests,
 		StatusCounts:       statusCounts,
 	}
-	
+
 	// Exibe o relatório final
 	printReport(report)
 }
