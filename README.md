@@ -17,43 +17,43 @@ Este projeto contém uma aplicação CLI em Go para realizar testes de carga em 
 
 1.  **Navegue até o diretório do projeto:**
     ```bash
-    cd /home/ubuntu/loadtester
+    cd cliTestCarga/ 
     ```
 
 2.  **Compile a aplicação:**
     ```bash
-    go build -o loadtester_local .
+    go build -o testCarga .
     ```
-    Isso gerará um executável chamado `loadtester_local` no diretório atual.
+    Isso gerará um executável chamado `testCarga` no diretório atual.
 
 3.  **Execute a aplicação:**
     ```bash
-    ./loadtester_local --url=<URL_DO_SERVICO> --requests=<NUMERO_DE_REQUESTS> --concurrency=<NUMERO_DE_CHAMADAS_SIMULTANEAS>
+    ./testCarga --url=<URL_DO_SERVICO> --requests=<NUMERO_DE_REQUESTS> --concurrency=<NUMERO_DE_CHAMADAS_SIMULTANEAS>
     ```
     **Exemplo:**
     ```bash
-    ./loadtester_local --url=http://httpbin.org/status/200 --requests=100 --concurrency=10
+    ./testCarga --url=http://httpbin.org/status/200 --requests=100 --concurrency=10
     ```
 
 ## Como Construir e Executar com Docker
 
 1.  **Navegue até o diretório do projeto onde o `Dockerfile` está localizado:**
     ```bash
-    cd /home/ubuntu/loadtester
+    cd cliTestCarga/ 
     ```
 
 2.  **Construa a imagem Docker:**
     ```bash
-    docker build -t loadtester_app .
+    docker build -t testcarga .
     ```
 
 3.  **Execute a aplicação usando o contêiner Docker:**
     ```bash
-    docker run loadtester_app --url=<URL_DO_SERVICO> --requests=<NUMERO_DE_REQUESTS> --concurrency=<NUMERO_DE_CHAMADAS_SIMULTANEAS>
+    docker run testcarga --url=<URL_DO_SERVICO> --requests=<NUMERO_DE_REQUESTS> --concurrency=<NUMERO_DE_CHAMADAS_SIMULTANEAS>
     ```
     **Exemplo:**
     ```bash
-    docker run loadtester_app --url=http://httpbin.org/status/200 --requests=1000 --concurrency=10
+    docker run testcarga --url=http://httpbin.org/status/200 --requests=1000 --concurrency=10
     ```
 
 ## Parâmetros da CLI
